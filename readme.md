@@ -1,0 +1,82 @@
+# dep-perf-analyzer
+
+> Measure the runtime performance impact of npm dependencies — startup time, memory, and event loop blocking
+
+## Install
+
+```sh
+npm install dep-perf-analyzer
+```
+
+## Usage
+
+```js
+import analyzeDep, {analyzeMultiple, formatReport} from 'dep-perf-analyzer';
+
+// Analyze a single dependency
+const result = await analyzeDep('express');
+console.log(result.startupTime); // Startup time in ms
+console.log(result.memoryDelta.heapUsed); // Heap memory delta in bytes
+
+// Analyze multiple dependencies
+const results = await analyzeMultiple(['express', 'koa', 'fastify']);
+console.log(formatReport(results));
+```
+
+## API
+
+### `analyzeDep(packageName, options?)`
+
+Returns: `Promise<{startupTime, memoryDelta, eventLoopBlock}>`
+
+#### packageName
+
+Type: `string`
+
+The package name or module specifier to analyze.
+
+#### options
+
+Type: `object`
+
+##### iterations
+
+Type: `number`\
+Default: `3`
+
+Number of measurement iterations. Median values are used for stability.
+
+##### warmup
+
+Type: `boolean`\
+Default: `true`
+
+Whether to run a warmup iteration before measuring.
+
+#### Return value
+
+- `startupTime` — Median startup time in milliseconds
+- `memoryDelta.rss` — RSS delta in bytes
+- `memoryDelta.heapUsed` — Used heap delta in bytes
+- `memoryDelta.heapTotal` — Total heap delta in bytes
+- `eventLoopBlock` — Median event loop blocking time in milliseconds
+
+### `analyzeMultiple(packageNames, options?)`
+
+Returns: `Promise<Map<string, AnalysisResult>>`
+
+Analyze multiple packages sequentially.
+
+### `formatReport(results)`
+
+Returns: `string`
+
+Format a results map as a human-readable table.
+
+## Related
+
+- [import-cost](https://github.com/nicolo-ribaudo/import-cost) — Display import size in your editor
+
+## License
+
+MIT

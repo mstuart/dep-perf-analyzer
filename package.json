@@ -1,0 +1,47 @@
+{
+	"name": "dep-perf-analyzer",
+	"version": "0.0.0-development",
+	"description": "Measure the runtime performance impact of npm dependencies — startup time, memory, and event loop blocking",
+	"license": "MIT",
+	"repository": "mstuart/dep-perf-analyzer",
+	"author": {
+		"name": "Mark Stuart",
+		"email": "mstuart@users.noreply.github.com",
+		"url": "https://github.com/mstuart"
+	},
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./index.d.ts",
+			"default": "./index.js"
+		}
+	},
+	"sideEffects": false,
+	"engines": {
+		"node": ">=20"
+	},
+	"scripts": {
+		"test": "xo && ava && tsd"
+	},
+	"keywords": [
+		"dependency",
+		"performance",
+		"analyze",
+		"startup",
+		"memory",
+		"impact",
+		"require",
+		"import",
+		"cold",
+		"start"
+	],
+	"dependencies": {
+		"perf-fn": "^0.0.0-development",
+		"mem-pressure": "^0.0.0-development"
+	},
+	"devDependencies": {
+		"ava": "^6",
+		"tsd": "^0.31",
+		"xo": "^0.60"
+	}
+}
