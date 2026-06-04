@@ -36,8 +36,8 @@
 		"start"
 	],
 	"dependencies": {
-		"perf-fn": "^0.0.0-development",
-		"mem-pressure": "^0.0.0-development"
+		"perf-fn": "^1.0.0",
+		"mem-pressure": "^1.0.0"
 	},
 	"devDependencies": {
 		"ava": "^6",
