@@ -80,16 +80,16 @@ function runWorker(packageName, workerFile) {
 			}
 		});
 
-		child.on('exit', code => {
-			// The 'message' IPC event can still be in flight when 'exit' fires
-			// (they're delivered over separate handles), so defer the failure
-			// one tick to let an already-queued message win the race.
-			setImmediate(() => {
-				if (!settled) {
-					settled = true;
-					reject(new Error(`Worker exited with code ${code}`));
-				}
-			});
+		// Use 'close', not 'exit': per the Node.js docs, 'exit' can fire before
+		// the child's stdio streams (which include the 'ipc' channel here) have
+		// finished draining, so a pending 'message' can still be in flight when
+		// 'exit' fires. 'close' is only emitted once those streams are done,
+		// guaranteeing any sent message has already been delivered.
+		child.on('close', code => {
+			if (!settled) {
+				settled = true;
+				reject(new Error(`Worker exited with code ${code}`));
+			}
 		});
 	});
 }
