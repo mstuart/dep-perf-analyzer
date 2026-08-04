@@ -81,10 +81,15 @@ function runWorker(packageName, workerFile) {
 		});
 
 		child.on('exit', code => {
-			if (!settled) {
-				settled = true;
-				reject(new Error(`Worker exited with code ${code}`));
-			}
+			// The 'message' IPC event can still be in flight when 'exit' fires
+			// (they're delivered over separate handles), so defer the failure
+			// one tick to let an already-queued message win the race.
+			setImmediate(() => {
+				if (!settled) {
+					settled = true;
+					reject(new Error(`Worker exited with code ${code}`));
+				}
+			});
 		});
 	});
 }
