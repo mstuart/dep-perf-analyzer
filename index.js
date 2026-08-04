@@ -80,7 +80,12 @@ function runWorker(packageName, workerFile) {
 			}
 		});
 
-		child.on('exit', code => {
+		// Use 'close', not 'exit': per the Node.js docs, 'exit' can fire before
+		// the child's stdio streams (which include the 'ipc' channel here) have
+		// finished draining, so a pending 'message' can still be in flight when
+		// 'exit' fires. 'close' is only emitted once those streams are done,
+		// guaranteeing any sent message has already been delivered.
+		child.on('close', code => {
 			if (!settled) {
 				settled = true;
 				reject(new Error(`Worker exited with code ${code}`));
@@ -90,7 +95,7 @@ function runWorker(packageName, workerFile) {
 }
 
 function median(values) {
-	const sorted = [...values].sort((a, b) => a - b);
+	const sorted = [...values].toSorted((a, b) => a - b);
 	const middle = Math.floor(sorted.length / 2);
 	return sorted.length % 2 === 0
 		? (sorted[middle - 1] + sorted[middle]) / 2
@@ -126,7 +131,9 @@ export default async function analyzeDep(packageName, options = {}) {
 	} finally {
 		try {
 			unlinkSync(workerFile);
-		} catch {}
+		} catch {
+			// Ignore errors removing the temporary worker file
+		}
 	}
 }
 
