@@ -13,9 +13,9 @@ test('analyzeDep returns result for node:path', async t => {
 test('analyzeDep result has all required fields', async t => {
 	const result = await analyzeDep('node:path', {iterations: 1, warmup: false});
 
-	t.truthy('startupTime' in result);
-	t.truthy('memoryDelta' in result);
-	t.truthy('eventLoopBlock' in result);
+	t.true('startupTime' in result);
+	t.true('memoryDelta' in result);
+	t.true('eventLoopBlock' in result);
 });
 
 test('startupTime is a positive number', async t => {

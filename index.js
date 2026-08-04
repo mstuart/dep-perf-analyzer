@@ -66,18 +66,20 @@ function runWorker(packageName, workerFile) {
 			stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
 		});
 
-		let settled = false;
+		let isSettled = false;
 
 		child.on('message', result => {
-			settled = true;
+			isSettled = true;
 			resolve(result);
 		});
 
 		child.on('error', error => {
-			if (!settled) {
-				settled = true;
-				reject(error);
+			if (isSettled) {
+				return;
 			}
+
+			isSettled = true;
+			reject(error);
 		});
 
 		// Use 'close', not 'exit': per the Node.js docs, 'exit' can fire before
@@ -86,10 +88,12 @@ function runWorker(packageName, workerFile) {
 		// 'exit' fires. 'close' is only emitted once those streams are done,
 		// guaranteeing any sent message has already been delivered.
 		child.on('close', code => {
-			if (!settled) {
-				settled = true;
-				reject(new Error(`Worker exited with code ${code}`));
+			if (isSettled) {
+				return;
 			}
+
+			isSettled = true;
+			reject(new Error(`Worker exited with code ${code}`));
 		});
 	});
 }
