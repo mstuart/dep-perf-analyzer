@@ -1,7 +1,16 @@
-# dep-perf-analyzer
+<div align="center">
+  <img src="docs/assets/logo.svg" alt="dep-perf-analyzer — Measure the runtime performance impact of npm dependencies" width="720">
+</div>
 
-> Measure the runtime performance impact of npm dependencies — startup time, memory, and event loop blocking
+<p align="center"><strong>Measure the runtime performance impact of npm dependencies</strong></p>
 
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT"></a>
+  <a href="https://www.npmjs.com/package/dep-perf-analyzer"><img src="https://img.shields.io/npm/v/dep-perf-analyzer?label=npm" alt="npm"></a>
+  <img src="https://img.shields.io/badge/node-%E2%89%A520-339933.svg" alt="Node 20+">
+</p>
+
+---
 ## Install
 
 ```sh
