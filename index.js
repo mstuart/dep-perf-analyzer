@@ -47,7 +47,12 @@ function measure() {
 		result.eventLoopBlock = intervals.length > 0
 			? intervals.reduce((a, b) => a + b, 0) / intervals.length
 			: 0;
-		process.send(result);
+		// process.send is asynchronous; without waiting for the flush callback
+		// the worker can exit before the message is delivered, and the parent
+		// then sees only 'exit' and reports a failure for a successful run.
+		process.send(result, () => {
+			process.exit(0);
+		});
 	}
 }
 
