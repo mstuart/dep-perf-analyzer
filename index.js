@@ -80,11 +80,17 @@ function runWorker(packageName, workerFile) {
 			}
 		});
 
+		// 'exit' can fire before a already-sent IPC message has been delivered,
+		// so defer the rejection by a turn to let any pending 'message' land.
+		// Without this the parent rejects with "exited with code 0" on a run
+		// that actually succeeded, which is timing- and machine-dependent.
 		child.on('exit', code => {
-			if (!settled) {
-				settled = true;
-				reject(new Error(`Worker exited with code ${code}`));
-			}
+			setImmediate(() => {
+				if (!settled) {
+					settled = true;
+					reject(new Error(`Worker exited with code ${code}`));
+				}
+			});
 		});
 	});
 }
