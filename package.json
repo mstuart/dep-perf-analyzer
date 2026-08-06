@@ -1,7 +1,7 @@
 {
 	"name": "dep-perf-analyzer",
 	"version": "1.0.0",
-	"description": "Measure the runtime performance impact of npm dependencies — startup time, memory, and event loop blocking",
+	"description": "Measure the runtime performance impact of npm dependencies \u2014 startup time, memory, and event loop blocking",
 	"license": "MIT",
 	"repository": "mstuart/dep-perf-analyzer",
 	"author": {
@@ -43,5 +43,16 @@
 		"ava": "^8",
 		"tsd": "^0.33",
 		"xo": "^2.0"
+	},
+	"xo": {
+		"rules": {
+			"@stylistic/curly-newline": [
+				"error",
+				{
+					"multiline": true,
+					"consistent": true
+				}
+			]
+		}
 	}
 }
