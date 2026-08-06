@@ -47,12 +47,7 @@ function measure() {
 		result.eventLoopBlock = intervals.length > 0
 			? intervals.reduce((a, b) => a + b, 0) / intervals.length
 			: 0;
-		// process.send is asynchronous; without waiting for the flush callback
-		// the worker can exit before the message is delivered, and the parent
-		// then sees only 'exit' and reports a failure for a successful run.
-		process.send(result, () => {
-			process.exit(0);
-		});
+		process.stdout.write(JSON.stringify(result));
 	}
 }
 
@@ -67,35 +62,36 @@ function createWorkerFile() {
 
 function runWorker(packageName, workerFile) {
 	return new Promise((resolve, reject) => {
+		// The result comes back over stdout rather than IPC. An IPC message can
+		// still be in flight when the child exits, which made the parent report
+		// a failure for a run that had succeeded; 'close' fires only once the
+		// streams are drained, so reading stdout has no such race.
 		const child = fork(workerFile, [packageName], {
-			stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
+			stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
 		});
 
-		let settled = false;
-
-		child.on('message', result => {
-			settled = true;
-			resolve(result);
+		let stdout = '';
+		let stderr = '';
+		child.stdout.on('data', chunk => {
+			stdout += chunk;
+		});
+		child.stderr.on('data', chunk => {
+			stderr += chunk;
 		});
 
-		child.on('error', error => {
-			if (!settled) {
-				settled = true;
-				reject(error);
+		child.on('error', reject);
+
+		child.on('close', code => {
+			if (code !== 0) {
+				reject(new Error(`Worker exited with code ${code}: ${stderr.trim()}`));
+				return;
 			}
-		});
 
-		// 'exit' can fire before a already-sent IPC message has been delivered,
-		// so defer the rejection by a turn to let any pending 'message' land.
-		// Without this the parent rejects with "exited with code 0" on a run
-		// that actually succeeded, which is timing- and machine-dependent.
-		child.on('exit', code => {
-			setImmediate(() => {
-				if (!settled) {
-					settled = true;
-					reject(new Error(`Worker exited with code ${code}`));
-				}
-			});
+			try {
+				resolve(JSON.parse(stdout));
+			} catch {
+				reject(new Error(`Worker produced no parseable result: ${stdout.trim() || stderr.trim()}`));
+			}
 		});
 	});
 }
