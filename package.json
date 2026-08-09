@@ -1,58 +1,50 @@
 {
-	"name": "dep-perf-analyzer",
-	"version": "1.0.0",
-	"description": "Measure the runtime performance impact of npm dependencies — startup time, memory, and event loop blocking",
-	"license": "MIT",
-	"repository": "mstuart/dep-perf-analyzer",
-	"author": {
-		"name": "Mark Stuart",
-		"email": "mstuart@users.noreply.github.com",
-		"url": "https://github.com/mstuart"
-	},
-	"type": "module",
-	"exports": {
-		".": {
-			"types": "./index.d.ts",
-			"default": "./index.js"
-		}
-	},
-	"sideEffects": false,
-	"engines": {
-		"node": ">=22"
-	},
-	"scripts": {
-		"test": "xo && ava && tsd"
-	},
-	"keywords": [
-		"dependency",
-		"performance",
-		"analyze",
-		"startup",
-		"memory",
-		"impact",
-		"require",
-		"import",
-		"cold",
-		"start"
-	],
-	"dependencies": {
-		"perf-fn": "^1.0.0",
-		"mem-pressure": "^1.0.0"
-	},
-	"devDependencies": {
-		"ava": "^8",
-		"tsd": "^0.33",
-		"xo": "^2.0"
-	},
-	"xo": {
-		"rules": {
-			"@stylistic/curly-newline": [
-				"error",
-				{
-					"multiline": true,
-					"consistent": true
-				}
-			]
-		}
-	}
+  "name": "dep-perf-analyzer",
+  "version": "1.0.0",
+  "description": "Measure the runtime performance impact of npm dependencies — startup time, memory, and event loop blocking",
+  "keywords": [
+    "dependency",
+    "performance",
+    "analyze",
+    "startup",
+    "memory",
+    "impact",
+    "require",
+    "import",
+    "cold",
+    "start"
+  ],
+  "repository": "mstuart/dep-perf-analyzer",
+  "license": "MIT",
+  "author": {
+    "name": "Mark Stuart",
+    "email": "mstuart@users.noreply.github.com",
+    "url": "https://github.com/mstuart"
+  },
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    }
+  },
+  "scripts": {
+    "check": "ultracite check",
+    "fix": "ultracite fix",
+    "test": "ava && tsd"
+  },
+  "dependencies": {
+    "mem-pressure": "^1.0.0",
+    "perf-fn": "^1.0.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.6",
+    "ava": "^8",
+    "tsd": "^0.33",
+    "ultracite": "7.10.2"
+  },
+  "engines": {
+    "node": ">=22"
+  }
 }
