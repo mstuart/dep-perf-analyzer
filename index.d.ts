@@ -1,38 +1,36 @@
-export type MemoryDelta = {
-	/** Resident set size delta in bytes. */
-	readonly rss: number;
+export interface MemoryDelta {
+  /** Total heap size delta in bytes. */
+  readonly heapTotal: number;
 
-	/** Used heap size delta in bytes. */
-	readonly heapUsed: number;
+  /** Used heap size delta in bytes. */
+  readonly heapUsed: number;
+  /** Resident set size delta in bytes. */
+  readonly rss: number;
+}
 
-	/** Total heap size delta in bytes. */
-	readonly heapTotal: number;
-};
+export interface AnalysisResult {
+  /** Median event loop blocking time in milliseconds. */
+  readonly eventLoopBlock: number;
 
-export type AnalysisResult = {
-	/** Median startup time in milliseconds. */
-	readonly startupTime: number;
+  /** Memory usage delta from before to after import. */
+  readonly memoryDelta: MemoryDelta;
+  /** Median startup time in milliseconds. */
+  readonly startupTime: number;
+}
 
-	/** Memory usage delta from before to after import. */
-	readonly memoryDelta: MemoryDelta;
-
-	/** Median event loop blocking time in milliseconds. */
-	readonly eventLoopBlock: number;
-};
-
-export type AnalyzeDepOptions = {
-	/**
+export interface AnalyzeDepOptions {
+  /**
 	Number of measurement iterations to run.
 	@default 3
 	*/
-	readonly iterations?: number;
+  readonly iterations?: number;
 
-	/**
+  /**
 	Whether to run a warmup iteration before measuring.
 	@default true
 	*/
-	readonly warmup?: boolean;
-};
+  readonly warmup?: boolean;
+}
 
 /**
 Measure the runtime performance impact of a single npm dependency.
@@ -50,7 +48,10 @@ console.log(result.startupTime);
 // => 0.42
 ```
 */
-export default function analyzeDep(packageName: string, options?: AnalyzeDepOptions): Promise<AnalysisResult>;
+export default function analyzeDep(
+  packageName: string,
+  options?: AnalyzeDepOptions
+): Promise<AnalysisResult>;
 
 /**
 Analyze multiple packages sequentially.
@@ -69,7 +70,10 @@ for (const [name, result] of results) {
 }
 ```
 */
-export function analyzeMultiple(packageNames: string[], options?: AnalyzeDepOptions): Promise<Map<string, AnalysisResult>>;
+export function analyzeMultiple(
+  packageNames: string[],
+  options?: AnalyzeDepOptions
+): Promise<Map<string, AnalysisResult>>;
 
 /**
 Format analysis results as a human-readable report string.
