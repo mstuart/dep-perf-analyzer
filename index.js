@@ -12,9 +12,7 @@ const packageName = process.argv[2];
 const memBefore = process.memoryUsage();
 const startTime = performance.now();
 
-try {
-	await import(packageName);
-} catch {}
+await import(packageName);
 
 const endTime = performance.now();
 const memAfter = process.memoryUsage();

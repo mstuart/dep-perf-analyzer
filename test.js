@@ -147,12 +147,15 @@ test("formatReport handles empty results", (t) => {
 
 // Edge cases
 
-test("analyzeDep handles nonexistent module gracefully", async (t) => {
-  const result = await analyzeDep("node:path", {
-    iterations: 1,
-    warmup: false,
-  });
-  t.truthy(result);
+test("analyzeDep rejects a module that cannot be imported", async (t) => {
+  await t.throwsAsync(
+    () =>
+      analyzeDep("dep-perf-analyzer-missing-module", {
+        iterations: 1,
+        warmup: false,
+      }),
+    { message: /dep-perf-analyzer-missing-module/ }
+  );
 });
 
 test("analyzeDep with node:fs produces valid result", async (t) => {
