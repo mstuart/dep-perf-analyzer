@@ -1,6 +1,8 @@
 import test from "ava";
 import analyzeDep, { analyzeMultiple, formatReport } from "./index.js";
 
+const MISSING_MODULE_PATTERN = /dep-perf-analyzer-missing-module/;
+
 // AnalyzeDep
 
 test("analyzeDep returns result for node:path", async (t) => {
@@ -71,6 +73,15 @@ test("analyzeDep uses default options", async (t) => {
   t.is(typeof result.startupTime, "number");
 });
 
+test("analyzeDep resolves installed packages from the project", async (t) => {
+  const result = await analyzeDep("mem-pressure", {
+    iterations: 1,
+    warmup: false,
+  });
+
+  t.is(typeof result.startupTime, "number");
+});
+
 // AnalyzeMultiple
 
 test("analyzeMultiple returns Map with results", async (t) => {
@@ -101,6 +112,12 @@ test("analyzeMultiple with empty array returns empty Map", async (t) => {
   const results = await analyzeMultiple([]);
   t.true(results instanceof Map);
   t.is(results.size, 0);
+});
+
+test("analyzeMultiple rejects invalid iterations for empty input", async (t) => {
+  await t.throwsAsync(() => analyzeMultiple([], { iterations: 0 }), {
+    message: "iterations must be a positive integer",
+  });
 });
 
 // FormatReport
@@ -147,12 +164,22 @@ test("formatReport handles empty results", (t) => {
 
 // Edge cases
 
-test("analyzeDep handles nonexistent module gracefully", async (t) => {
-  const result = await analyzeDep("node:path", {
-    iterations: 1,
-    warmup: false,
-  });
-  t.truthy(result);
+test("analyzeDep rejects a module that cannot be imported", async (t) => {
+  await t.throwsAsync(
+    () =>
+      analyzeDep("dep-perf-analyzer-missing-module", {
+        iterations: 1,
+        warmup: false,
+      }),
+    { message: MISSING_MODULE_PATTERN }
+  );
+});
+
+test("analyzeDep rejects non-positive iteration counts", async (t) => {
+  await t.throwsAsync(
+    () => analyzeDep("node:path", { iterations: 0, warmup: false }),
+    { message: "iterations must be a positive integer" }
+  );
 });
 
 test("analyzeDep with node:fs produces valid result", async (t) => {
