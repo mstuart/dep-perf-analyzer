@@ -122,15 +122,23 @@ async function runIterations(packageName, workerFile, iterations) {
 
 export default async function analyzeDep(packageName, options = {}) {
   const { iterations = 3, warmup = true } = options;
+  if (!Number.isInteger(iterations) || iterations <= 0) {
+    throw new TypeError("iterations must be a positive integer");
+  }
 
+  const packageSpecifier = import.meta.resolve(packageName);
   const workerFile = createWorkerFile();
 
   try {
     if (warmup) {
-      await runWorker(packageName, workerFile);
+      await runWorker(packageSpecifier, workerFile);
     }
 
-    const results = await runIterations(packageName, workerFile, iterations);
+    const results = await runIterations(
+      packageSpecifier,
+      workerFile,
+      iterations
+    );
 
     return {
       eventLoopBlock: median(results.map((r) => r.eventLoopBlock)),
@@ -161,6 +169,13 @@ async function analyzeSequentially(packageNames, options, index, results) {
 }
 
 export function analyzeMultiple(packageNames, options = {}) {
+  const { iterations = 3 } = options;
+  if (!Number.isInteger(iterations) || iterations <= 0) {
+    return Promise.reject(
+      new TypeError("iterations must be a positive integer")
+    );
+  }
+
   return analyzeSequentially(packageNames, options, 0, new Map());
 }
 
