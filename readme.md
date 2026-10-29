@@ -65,6 +65,10 @@ Default: `true`
 
 Whether to run a warmup iteration before measuring.
 
+Each iteration runs in an isolated subprocess. Once metrics are collected, the
+subprocess exits even if the imported module keeps timers or other handles open.
+Module stdout is separate from the measurement result.
+
 #### Return value
 
 - `startupTime` — Median startup time in milliseconds
