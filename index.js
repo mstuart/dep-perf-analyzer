@@ -6,6 +6,7 @@ import path from "node:path";
 
 const workerScript = `
 import {performance} from 'node:perf_hooks';
+import {writeSync} from 'node:fs';
 
 const packageName = process.argv[2];
 
@@ -45,7 +46,8 @@ function measure() {
 		result.eventLoopBlock = intervals.length > 0
 			? intervals.reduce((a, b) => a + b, 0) / intervals.length
 			: 0;
-		process.stdout.write(JSON.stringify(result));
+		writeSync(3, JSON.stringify(result));
+		process.exit(0);
 	}
 }
 
@@ -60,16 +62,18 @@ function createWorkerFile() {
 
 function runWorker(packageName, workerFile) {
   return new Promise((resolve, reject) => {
-    // The result comes back over stdout rather than IPC. An IPC message can
-    // still be in flight when the child exits, which made the parent report
-    // a failure for a run that had succeeded; 'close' fires only once the
-    // streams are drained, so reading stdout has no such race.
+    // A dedicated pipe keeps module stdout separate from metrics. Close fires
+    // after every stream is drained, so the result is complete before parsing.
     const child = fork(workerFile, [packageName], {
-      stdio: ["ignore", "pipe", "pipe", "ipc"],
+      stdio: ["ignore", "pipe", "pipe", "pipe", "ipc"],
     });
 
+    let resultOutput = "";
     let stdout = "";
     let stderr = "";
+    child.stdio[3].on("data", (chunk) => {
+      resultOutput += chunk;
+    });
     child.stdout.on("data", (chunk) => {
       stdout += chunk;
     });
@@ -86,7 +90,7 @@ function runWorker(packageName, workerFile) {
       }
 
       try {
-        resolve(JSON.parse(stdout));
+        resolve(JSON.parse(resultOutput));
       } catch {
         reject(
           new Error(
